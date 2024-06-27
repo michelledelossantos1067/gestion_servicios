@@ -1,0 +1,29 @@
+/* *{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.carp{
+width: 40%;
+height: 400px;
+font-family: 'Times New Roman', Times, serif;
+background-color: #0959a46b;
+border-radius: 10px;
+box-shadow: #194c87a2 10px 5px 4px;
+
+}
+.reg{
+    width: 55%;
+    height: 550px;
+    font-family: 'Times New Roman', Times, serif;
+    background-color: #0959a46b;
+    border-radius: 10px;
+    box-shadow: #194c87a2 10px 5px 4px;
+      
+}
+h2{
+   font-size: 40px;
+   font-weight: bolder;
+
+} */
