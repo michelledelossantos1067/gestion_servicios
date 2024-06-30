@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva Empresa</title>
+</head>
+<body>
+  <h1>Crear Nueva Empresa</h1>
+  <form action="/nuevaEmpresa" method="POST">
+    <input type="hidden" name="id_cliente" value="<%= id_cliente %>">
+    
+    <label for="nombreEmpresa">Nombre de la Empresa:</label>
+    <input type="text" id="nombreEmpresa" name="nombreEmpresa" required><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="pais">País:</label>
+    <input type="text" id="pais" name="pais" required><br><br>
+
+    <label for="direccion">Dirección:</label>
+    <input type="text" id="dirección" name="dirección" required><br><br>
+
+    <label for="telefono">Teléfono:</label>
+    <input type="text" id="telefono" name="telefono" required><br><br>
+
+    <label for="estado">Estado:</label>
+    <input type="text" id="estado" name="estado" required><br><br>
+
+    <label for="codigo_postal">Código Postal:</label>
+    <input type="text" id="codigo_postal" name="codigo_postal" required><br><br>
+
+    <button type="submit">Guardar Empresa</button>
+  </form>
+</body>
+</html>
