@@ -3,7 +3,6 @@ const { Client } = require('pg');
 const app = express();
 const port = 1000;
 
-// Configura la conexión a la base de datos
 const client = new Client({
   user: 'postgres',
   host: 'localhost',
@@ -12,24 +11,19 @@ const client = new Client({
   port: 5432,
 });
 
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
-// Ruta para mostrar formulario de cliente
 app.get('/nuevoCliente', (req, res) => {
   res.render('nuevoCliente');
 });
 
 app.post('/nuevoCliente', async (req, res) => {
   const { nombre, apellido, email, pais, dirección, telefono, estado, ocupación } = req.body;
-
-  // Validar que dirección no sea null
-  // if (!nombre || !apellido || !email || !pais || !dirección || !telefono || !estado || !ocupación) {
-  //   return res.status(400).json({ error: 'Todos los campos son obligatorios, incluyendo dirección.' });
-  // }
 
   try {
     const insertQuery = `
@@ -40,7 +34,7 @@ app.post('/nuevoCliente', async (req, res) => {
     const result = await client.query(insertQuery, [nombre, apellido, email, pais, dirección, telefono, estado, ocupación]);
     const id_cliente = result.rows[0].id_cliente;
 
-    console.log('Nuevo cliente ID:', id_cliente); // Añadido para depuración
+    console.log('Nuevo cliente ID:', id_cliente); 
     res.redirect('/nuevaEmpresa/' + id_cliente);
   } catch (err) {
     console.error(err);
@@ -48,20 +42,14 @@ app.post('/nuevoCliente', async (req, res) => {
   }
 });
 
-
-// Ruta para mostrar formulario de empresa
 app.get('/nuevaEmpresa/:id_cliente', (req, res) => {
   const { id_cliente } = req.params;
+  console.log('ID Cliente en /nuevaEmpresa:', id_cliente); 
   res.render('nuevaEmpresa', { id_cliente });
 });
 
-// Ruta para procesar formulario de nueva empresa
 app.post('/nuevaEmpresa', async (req, res) => {
   const { nombreEmpresa, email, pais, dirección, telefono, estado, codigo_postal, id_cliente } = req.body;
-
-  // if (!nombreEmpresa || !email || !pais || !direccion || !telefono || !estado || !codigo_postal || !id_cliente) {
-  //   return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-  // }
 
   try {
     const insertQuery = `
@@ -72,41 +60,44 @@ app.post('/nuevaEmpresa', async (req, res) => {
     const result = await client.query(insertQuery, [nombreEmpresa, email, pais, dirección, telefono, estado, codigo_postal]);
     const id_empresa = result.rows[0].id_empresa;
 
+    console.log('Nueva empresa ID:', id_empresa); 
     res.redirect('/nuevaDeuda/' + id_cliente + '/' + id_empresa);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al agregar empresa' });
+    if (err.code === '23505') {
+      console.error('Error: clave duplicada.');
+      res.status(400).json({ error: 'Error: clave duplicada.' });
+    } else {
+      console.error(err);
+      res.status(500).json({ error: 'Error al agregar empresa' });
+    }
   }
 });
 
 app.get('/nuevaDeuda/:id_cliente/:id_empresa', async (req, res) => {
   let { id_cliente, id_empresa } = req.params;
-  
- 
+
+  id_cliente = parseInt(id_cliente, 10);
+  id_empresa = parseInt(id_empresa, 10);
+
   console.log('ID Cliente en /nuevaDeuda:', id_cliente);
   console.log('ID Empresa en /nuevaDeuda:', id_empresa);
 
   try {
-    const clienteQuery = 'SELECT nombre FROM client WHERE id_cliente = $1';
-    const empresaQuery = 'SELECT nombreEmpresa FROM empresa WHERE id_empresa = $1';
+    const clienteQuery = 'SELECT id_cliente, nombre FROM client';
+    const empresaQuery = 'SELECT id_empresa, nombreEmpresa FROM empresa';
 
-    const clienteResult = await client.query(clienteQuery, [id_cliente]);
-    const empresaResult = await client.query(empresaQuery, [id_empresa]);
+    const clienteResult = await client.query(clienteQuery);
+    const empresaResult = await client.query(empresaQuery);
 
-    if (clienteResult.rows.length === 0 || empresaResult.rows.length === 0) {
-      return res.status(400).json({ error: 'Cliente o Empresa no encontrado' });
-    }
+    const clients = clienteResult.rows;
+    const companies = empresaResult.rows;
 
-    const nombre = clienteResult.rows[0].nombre;
-    const nombreEmpresa = empresaResult.rows[0].nombreempresa; // Asegúrate que el nombre de la columna sea correcto
-
-    res.render('nuevaDeuda', { id_cliente, id_empresa, nombre, nombreEmpresa });
+    res.render('nuevaDeuda', { id_cliente, id_empresa, clients, companies });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al obtener datos para nueva deuda' });
   }
 });
-
 
 app.post('/nuevaDeuda', async (req, res) => {
   const { id_cliente, id_empresa, nombre, nombreEmpresa, deuda } = req.body;
@@ -125,7 +116,25 @@ app.post('/nuevaDeuda', async (req, res) => {
   }
 });
 
-// Conexión a la base de datos y arranque del servidor
+// Ruta para mostrar los registros de deuda
+app.get('/verDeudas', async (req, res) => {
+  try {
+    const deudaQuery = `
+      SELECT r.nombre, r.nombreEmpresa, r.deuda
+      FROM registrarDeuda r
+      JOIN client c ON r.id_cliente = c.id_cliente
+      JOIN empresa e ON r.id_empresa = e.id_empresa
+    `;
+    const deudaResult = await client.query(deudaQuery);
+    const deudas = deudaResult.rows;
+
+    res.render('verDeudas', { deudas });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener los registros de deuda' });
+  }
+});
+
 client.connect()
   .then(() => {
     console.log('Conexión exitosa a la base de datos');
@@ -136,3 +145,5 @@ client.connect()
   .catch(err => {
     console.error('Error al conectar la base de datos', err);
   });
+
+

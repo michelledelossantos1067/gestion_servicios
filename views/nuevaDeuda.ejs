@@ -1,34 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nueva Deuda</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
+
 <body>
-  <h1>Registrar Nueva Deuda</h1>
-  <form action="/nuevaDeuda" method="POST">
-    <input type="hidden" name="id_cliente" value="<%= id_cliente %>">
-    <input type="hidden" name="id_empresa" value="<%= id_empresa %>">
+  <main class="container mt-4 reg">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h1 class="text-center mb-5">Registrar Nueva Deuda</h1>
+        <form action="/nuevaDeuda" method="POST">
 
-    <label for="id_cliente">Seleccione Cliente:</label>
-    <select id="id_cliente" name="id_cliente" required>
-      <% clients.forEach(client => { %>
-        <option value="<%= client.id_cliente %>"><%= client.nombre %></option>
-      <% }); %>
-    </select><br><br>
+          <input type="hidden" id="id_cliente" name="id_cliente" value="<%= id_cliente %>">
+          <input type="hidden" id="id_empresa" name="id_empresa" value="<%= id_empresa %>">
 
-    <label for="id_empresa">Seleccione Empresa:</label>
-    <select id="id_empresa" name="id_empresa" required>
-      <% empresas.forEach(empresa => { %>
-        <option value="<%= empresa.id_empresa %>"><%= empresa.nombreEmpresa %></option>
-      <% }); %>
-    </select><br><br>
+          <div class="mb-3">
+            <label for="nombre">Nombre Cliente:</label>
+            <select id="nombre" name="nombre" class="form-control">
+              <% clients.forEach(client => { %>
+                <option value="<%= client.nombre %>"><%= client.nombre %></option>
+              <% }); %>
+            </select>
+          </div>
 
-    <label for="deuda">Deuda:</label>
-    <input type="number" id="deuda" name="deuda" required><br><br>
+          <div class="mb-3">
+            <label for="nombreEmpresa">Nombre Empresa:</label>
+            <select id="nombreEmpresa" name="nombreEmpresa" class="form-control">
+              <% companies.forEach(company => { %>
+                <option value="<%= company.nombreempresa %>"><%= company.nombreempresa %></option>
+              <% }); %>
+            </select>
+          </div>
+          
 
-    <button type="submit">Registrar Deuda</button>
-  </form>
+          <div class="mb-3">
+            <label for="deuda">Deuda:</label>
+            <input type="number" id="deuda" name="deuda" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary w-100">Registrar</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
 </body>
+
 </html>
